@@ -1,7 +1,10 @@
 import pyautogui as pa 
+from google_search import launch_google
+import webbrowser
+import re
 
 #second delays for input
-pa.PAUSE = 0.5
+pa.PAUSE = 0.25
 
 #saves in default folder
 def bookmark(name):
@@ -10,12 +13,15 @@ def bookmark(name):
 		pa.typewrite(name)
 	pa.press('enter')
 
+def open_messenger():
+    webbrowser.open_new("https://www.messenger.com/")
+
 def closeTab():
 	pa.hotkey('ctrl', 'w')
 
 def closeWindow():
 	pa.hotkey('alt', 'f4')
-	pa.press('enter')
+	# pa.press('enter')
 
 def newWindow():
 	pa.hotkey('ctrl', 'n')
@@ -32,8 +38,8 @@ def prevTab():
 def prevWindow():
 	pa.hotkey('alt', 'tab')
 
-
-
+def click():
+	pa.click()
 
 def tab():
 	pa.press('tab')
@@ -59,7 +65,8 @@ def fullscreen():
 #WIP
 # def type():
 
-#def search():
+def search(query):
+	launch_google(query)
 
 # #saves in Pictures or default directory
 # def screenShot(name):

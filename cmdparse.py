@@ -6,8 +6,16 @@ def command(data):
 
 	# if (typer in data):
 	# 	f.type(data minus "type ")
+	if (("google" in data) or ("search" in data) or ("Google" in data)):
+		f.search(data[6:])
 
-	if (("bookmark" in data) or ("mark" in data) or ("Mike" in data) or ("but like" in data) or ("look like" in data)):
+	elif (("click" in data) or ("clack" in data)):
+		f.click()
+
+	elif (("messenger" in data)):
+		f.open_messenger()
+
+	elif (("bookmark" in data) or ("mark" in data) or ("Mike" in data) or ("but like" in data) or ("look like" in data)):
 		f.bookmark(None)
 
 	elif ("close" in data):
@@ -28,13 +36,13 @@ def command(data):
 			f.newWindow()
 
 	elif ("next" in data):
-		if (("tab" in data) or ("tap" in data) or ("tax" in data) or ("tag" in data) or ("have" in data)):
+		if (("tab" in data) or ("tap" in data) or ("tax" in data) or ("tag" in data) or ("have" in data) or ('ad' in data)):
 			f.nextTab()
 		else:
 			f.tab() #saying "next field to fall here"
 
 	elif ("previous" in data):
-		if (("tab" in data) or ("tap" in data) or ("tax" in data) or ("tag" in data) or ("have" in data)):
+		if (("tab" in data) or ("tap" in data) or ("tax" in data) or ("tag" in data) or ("have" in data) or ('at' in data)):
 			f.prevTab()
 		elif (("window" in data) or ("no" in data)):
 			f.prevWindow()
@@ -44,14 +52,14 @@ def command(data):
 			f.closeWindow()
 		elif (('s ' in data)):
 			f.prevWindow()
-		elif (('ew' in data) or ('Ew' in data) or ('ea' in data) or ('n' in data)):
+		elif (('ew' in data) or ('Ew' in data) or ('ea' in data)):
 			f.newWindow()
 
 	elif (("tab" in data) or ("tap" in data) or ("tax" in data) or ("tag" in data) or ("have" in data) or ("tad" in data)):
 		#something about tab
 		if (('se ' in data) or ('s ' in data)):
 			f.closeTab()
-		elif (('you' in data) or ('ea' in data) or ('n' in data)):
+		elif (('you' in data) or ('ea' in data)):
 			f.newTab()
 
 	elif (("enter" in data)):
