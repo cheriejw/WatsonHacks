@@ -15,7 +15,7 @@ import time
 
 import re
 
-#file_out = open("newdata.csv", 'a')
+file_out = open("newdata.csv", 'a')
 
 
 # TENSORFLOW
@@ -26,62 +26,60 @@ import random
 import pandas as pd
 
 
-mouseX = 500
-mouseY = 500
+screenWidth = pyautogui.size()[0]
+screenHeight = pyautogui.size()[1]
+print(screenWidth)
+print(screenHeight)
+
+mouseX = screenWidth/2
+mouseY = screenHeight/2
+
 
 mouseSpeed = 20
 
 
 
+# TRAINING = "leapMotionTrainingSet.csv"
+# TEST = "leapMotionTestSet.csv"
 
-TRAINING = "leapMotionTrainingSet.csv"
-TEST = "leapMotionTestSet.csv"
+# dataset = pd.read_csv("newdata.csv")
+# dataset['n'] = dataset['n'].astype('int')
 
-dataset = pd.read_csv("finalDataset.csv")
-dataset['Direction'] = dataset['Direction'].astype('int')
+# dfLength = len(dataset)
 
-dfLength = len(dataset)
+# trainingLength = int(0.8 * dfLength)
+# testLength = int(0.2 * dfLength)
 
-trainingLength = int(0.8 * dfLength)
-testLength = int(0.2 * dfLength)
+# trainingSetRandomRows = np.random.choice(dataset.index.values, trainingLength)
+# trainingData = dataset.iloc[trainingSetRandomRows]
+# trainingData.to_csv(TRAINING, index=False, header=False)
 
-trainingSetRandomRows = np.random.choice(dataset.index.values, trainingLength)
-trainingData = dataset.iloc[trainingSetRandomRows]
-trainingData.to_csv(TRAINING, index=False, header=False)
+# testSetRandomRows = np.random.choice(dataset.index.values, testLength)
+# testData = dataset.iloc[testSetRandomRows]
+# testData.to_csv(TEST, index=False, header=False)
 
-testSetRandomRows = np.random.choice(dataset.index.values, testLength)
-testData = dataset.iloc[testSetRandomRows]
-testData.to_csv(TEST, index=False, header=False)
+# trainingSet = tf.contrib.learn.datasets.base.load_csv_without_header(
+#     filename=TRAINING, target_dtype=np.int, features_dtype=np.float32
+# )
 
-trainingSet = tf.contrib.learn.datasets.base.load_csv_without_header(
-    filename=TRAINING, target_dtype=np.int, features_dtype=np.float32
-)
+# testSet = tf.contrib.learn.datasets.base.load_csv_without_header(
+#     filename=TEST, target_dtype=np.int, features_dtype=np.float32
+# )
 
-testSet = tf.contrib.learn.datasets.base.load_csv_without_header(
-    filename=TEST, target_dtype=np.int, features_dtype=np.float32
-)
+# featureColumns = [tf.contrib.layers.real_valued_column("", dimension=13)]
 
-featureColumns = [tf.contrib.layers.real_valued_column("", dimension=13)]
+# classifier = tf.contrib.learn.DNNClassifier(
+#                 n_classes=2,
+#                 feature_columns=featureColumns,
+#                 hidden_units=[20, 30, 20]
+# )
 
-classifier = tf.contrib.learn.DNNClassifier(
-                n_classes=2,
-                feature_columns=featureColumns,
-                hidden_units=[20, 30, 20]
-)
-
-# Fit model
-classifier.fit(
-                x=trainingSet.data,
-                y=trainingSet.target,
-                batch_size=128,
-                steps=2000)
-
-# Evaluate accuracy
-accuracyScore = classifier.evaluate(
-                x=testSet.data,
-                y=testSet.target)["accuracy"]
-
-
+# # Fit model
+# classifier.fit(
+#                 x=trainingSet.data,
+#                 y=trainingSet.target,
+#                 batch_size=128,
+#                 steps=2000)
 
 # predictions = classifier.predict(np.array([[1,1,1,1,1,1,1,1,1,1,1,1,1]]))
 
@@ -129,6 +127,8 @@ class SampleListener(Leap.Listener):
         
         global mouseX
         global mouseY
+        global screenWidth
+        global screenHeight
         global mouseSpeed
 
         for hand in frame.hands:
@@ -140,10 +140,10 @@ class SampleListener(Leap.Listener):
 
 
             if(hand.is_left):
-                #file_out.write("0,")
+                file_out.write("0,")
                 predictIn[0].append(float(0))
             else:
-                #file_out.write("1,")
+                file_out.write("1,")
                 predictIn[0].append(float(1))
 
 
@@ -161,7 +161,7 @@ class SampleListener(Leap.Listener):
 
 
             # FILE OUT
-            #file_out.write("{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw))
+            file_out.write("{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw))
 
             predictIn[0].append(float(direction.pitch))
             predictIn[0].append(float(normal.roll))
@@ -183,7 +183,7 @@ class SampleListener(Leap.Listener):
             arm_dir_vals = arm_dir_str.split()
 
             for val in arm_dir_vals:
-                #file_out.write(val + ",")
+                file_out.write(val + ",")
                 predictIn[0].append(float(val))
 
 
@@ -192,8 +192,31 @@ class SampleListener(Leap.Listener):
             wrist_pos_vals = wrist_pos_str.split()
 
             for val in wrist_pos_vals:
-                #file_out.write(val + ",")
+                file_out.write(val + ",")
                 predictIn[0].append(float(val))          
+
+
+            x_min = -220
+            x_max = 150
+            y_min = 400
+            y_max = 50
+
+            a_x = 0
+            b_x = 2048
+            a_y = 0
+            b_y = 1152
+
+            x = int(float(wrist_pos_vals[0]))
+            y = int(float(wrist_pos_vals[1]))
+
+            mouseX = a_x + (x - x_min) * (b_x - a_x) / (x_max - x_min)
+            mouseY = a_y + (y - y_min) * (b_y - a_y) / (y_max - y_min)
+
+            print mouseX
+            print mouseY
+
+            if(hand.is_left):
+                pyautogui.moveTo(mouseX, mouseY, 0.1, pyautogui.easeOutQuad)
 
 
             # ELBOW POSITION
@@ -201,7 +224,7 @@ class SampleListener(Leap.Listener):
             elbow_pos_vals = elbow_pos_str.split()
 
             for val in elbow_pos_vals:
-                #file_out.write(val + ",")
+                file_out.write(val + ",")
                 predictIn[0].append(float(val))
 
 
@@ -255,10 +278,10 @@ class SampleListener(Leap.Listener):
                     # Determine clock direction using the angle between the pointable and the circle normal
                     if circle.pointable.direction.angle_to(circle.normal) <= Leap.PI/2:
                         clockwiseness = "clockwise"
-                        pyautogui.scroll(-10)
+                        pyautogui.scroll(-4)
                     else:
                         clockwiseness = "counterclockwise"
-                        pyautogui.scroll(10)
+                        pyautogui.scroll(4)
 
                     # Calculate the angle swept since the last frame
                     swept_angle = 0
@@ -269,30 +292,35 @@ class SampleListener(Leap.Listener):
 
                 if gesture.type == Leap.Gesture.TYPE_SWIPE:
                     swipe = SwipeGesture(gesture)
+                    pyautogui.hotkey('alt', 'left')
 
 
                 if gesture.type == Leap.Gesture.TYPE_KEY_TAP:
                     keytap = KeyTapGesture(gesture)
-
+                    #pyautogui.click(button='right')
+                    pyautogui.click()
+                    print "CLICK"
 
                 if gesture.type == Leap.Gesture.TYPE_SCREEN_TAP:
                     screentap = ScreenTapGesture(gesture)
+                    pyautogui.click()
+                    print "CLICK"
 
 
 
-            print predictIn
+            # print predictIn
 
-            predictionsList = list(classifier.predict(np.array(predictIn)))
-            print 'Predictions: ', predictionsList[0]
+            # predictionsList = list(classifier.predict(np.array(predictIn)))
+            # print 'Predictions: ', predictionsList[0]
 
 
-            if predictionsList[0] == 0:
-                print 'ctrl -'
-                #pyautogui.hotkey('ctrl', '-')
+            # if predictionsList[0] == 0:
+            #     print 'ctrl -'
+            #     pyautogui.hotkey('ctrl', '-')
             
-            if predictionsList[0] == 1:
-                print 'ctrl +'
-                #pyautogui.hotkey('ctrl', '+')
+            # if predictionsList[0] == 1:
+            #     print 'ctrl +'
+            #     pyautogui.hotkey('ctrl', '+')
 
             # if predictionsList[0] == 2:
             #     mouseX -= mouseSpeed
@@ -312,8 +340,9 @@ class SampleListener(Leap.Listener):
 
             # file_out.write("\n")
 
-            # print "\n"
+            print "\n"
 
+            # time.sleep(1)
 
 
     def state_string(self, state):

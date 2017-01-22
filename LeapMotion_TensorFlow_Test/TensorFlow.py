@@ -7,8 +7,8 @@ import pandas as pd
 TRAINING = "leapMotionTrainingSet.csv"
 TEST = "leapMotionTestSet.csv"
 
-dataset = pd.read_csv("finalDataset.csv")
-dataset['Direction'] = dataset['Direction'].astype('int')
+dataset = pd.read_csv("newdata.csv")
+dataset['n'] = dataset['n'].astype('int')
 
 dfLength = len(dataset)
 
@@ -34,7 +34,7 @@ testSet = tf.contrib.learn.datasets.base.load_csv_without_header(
 featureColumns = [tf.contrib.layers.real_valued_column("", dimension=13)]
 
 classifier = tf.contrib.learn.DNNClassifier(
-                n_classes=4,
+                n_classes=2,
                 feature_columns=featureColumns,
                 hidden_units=[20, 30, 20]
 )
@@ -55,5 +55,5 @@ accuracyScore = classifier.evaluate(
 # Predict
 predictions = classifier.predict(testSet.data)
 print testSet.data
-# print 'Predictions: ', list(predictions)
-# print 'Accuracy: {0:f}'.format(accuracyScore)
+print 'Predictions: ', list(predictions)
+print 'Accuracy: {0:f}'.format(accuracyScore)
