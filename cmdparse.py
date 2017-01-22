@@ -25,7 +25,7 @@ def command(data):
 	elif (("oom out" in data)):
 		f.zoomout()
 
-	elif (("set zoom" in data) or ("reset" in data):
+	elif (("set zoom" in data) or ("reset" in data)):
 		f.resetZoom()
 
 	elif (("click" in data) or ("clack" in data)):
