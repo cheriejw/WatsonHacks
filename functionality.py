@@ -77,7 +77,8 @@ def fullscreen():
 	pa.press('f11')
 
 #WIP
-# def type():
+def type(words):
+	pa.typewrite(words, interval=0.1)
 
 def search(query):
 	launch_google(query)

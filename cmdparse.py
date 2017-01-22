@@ -4,19 +4,29 @@ def command(data):
 
 	# get type and search out of way
 
-	# if (typer in data):
-	# 	f.type(data minus "type ")
-	if (("google" in data) or ("search" in data) or ("Google" in data)):
+	if ("type" == data[:4]):
+		f.type(data[4:])
+	
+	elif (("google" in data) or ("search" in data) or ("Google" in data)):
 		f.search(data[6:])
 
 	elif (("inspect" in data)):
 		f.inspect()
 
-	elif (("what time" in data)):
+	elif (("what time" in data) or ("current time" in data)):
 		f.time()
 
-	elif (("what day" in data) or ("what date" in data)):
+	elif (("what day" in data) or ("what date" in data) or ("today's date" in data) or ("today" in data)):
 		f.date()
+
+	elif (("in" in data))
+		f.zoomin()
+
+	elif (("out" in data))
+		f.zoomout()
+
+	elif (("reset" in data))
+		f.resetZoom()
 
 	elif (("click" in data) or ("clack" in data)):
 		f.click()
