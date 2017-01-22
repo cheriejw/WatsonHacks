@@ -54,5 +54,6 @@ accuracyScore = classifier.evaluate(
 
 # Predict
 predictions = classifier.predict(testSet.data)
-print('Predictions: ', list(predictions))
-print('Accuracy: {0:f}'.format(accuracyScore))
+print testSet.data
+# print 'Predictions: ', list(predictions)
+# print 'Accuracy: {0:f}'.format(accuracyScore)

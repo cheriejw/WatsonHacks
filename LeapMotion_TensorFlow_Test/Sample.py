@@ -16,10 +16,68 @@ import re
 file_out = open("testdata.csv", 'a')
 
 
-import msvcrt
-from msvcrt import getch
 
 
+# TENSORFLOW
+import tensorflow as tf
+
+import numpy as np
+import random
+import pandas as pd
+
+
+TRAINING = "leapMotionTrainingSet.csv"
+TEST = "leapMotionTestSet.csv"
+
+dataset = pd.read_csv("finalDataset.csv")
+dataset['Direction'] = dataset['Direction'].astype('int')
+
+dfLength = len(dataset)
+
+trainingLength = int(0.8 * dfLength)
+testLength = int(0.2 * dfLength)
+
+trainingSetRandomRows = np.random.choice(dataset.index.values, trainingLength)
+trainingData = dataset.iloc[trainingSetRandomRows]
+trainingData.to_csv(TRAINING, index=False, header=False)
+
+testSetRandomRows = np.random.choice(dataset.index.values, testLength)
+testData = dataset.iloc[testSetRandomRows]
+testData.to_csv(TEST, index=False, header=False)
+
+trainingSet = tf.contrib.learn.datasets.base.load_csv_without_header(
+    filename=TRAINING, target_dtype=np.int, features_dtype=np.float32
+)
+
+testSet = tf.contrib.learn.datasets.base.load_csv_without_header(
+    filename=TEST, target_dtype=np.int, features_dtype=np.float32
+)
+
+featureColumns = [tf.contrib.layers.real_valued_column("", dimension=13)]
+
+classifier = tf.contrib.learn.DNNClassifier(
+                n_classes=4,
+                feature_columns=featureColumns,
+                hidden_units=[20, 30, 20]
+)
+
+# Fit model
+classifier.fit(
+                x=trainingSet.data,
+                y=trainingSet.target,
+                batch_size=128,
+                steps=2000)
+
+# Evaluate accuracy
+accuracyScore = classifier.evaluate(
+                x=testSet.data,
+                y=testSet.target)["accuracy"]
+
+
+
+predictions = classifier.predict(np.array([[1,1,1,1,1,1,1,1,1,1,1,1,1]]))
+
+print 'Predictions: ', list(predictions)
 
 
 
@@ -65,9 +123,10 @@ class SampleListener(Leap.Listener):
 
             if(hand.is_left):
                 file_out.write("0,")
+                print "0 "
             else:
                 file_out.write("1,")
-            
+                print "1 "
 
             # Get the hand's normal vector and direction
             normal = hand.palm_normal
@@ -83,7 +142,7 @@ class SampleListener(Leap.Listener):
 
             # FILE OUT
             file_out.write("{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw))
-
+            print "{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw)
 
 
             # Get arm bone
@@ -102,6 +161,7 @@ class SampleListener(Leap.Listener):
 
             for val in arm_dir_vals:
                 file_out.write(val + ",")
+                print val + " "
 
 
             # WRIST POSITION
@@ -109,7 +169,8 @@ class SampleListener(Leap.Listener):
             wrist_pos_vals = wrist_pos_str.split()
 
             for val in wrist_pos_vals:
-                file_out.write(val + ",")            
+                file_out.write(val + ",")
+                print val + " "            
 
 
             # ELBOW POSITION
@@ -118,6 +179,7 @@ class SampleListener(Leap.Listener):
 
             for val in elbow_pos_vals:
                 file_out.write(val + ",")
+                print val + " "
 
 
 
@@ -167,12 +229,13 @@ class SampleListener(Leap.Listener):
             file_out.write(str(3))
 
             file_out.write("\n")
+            print "\n"
 
         # Get tools
-        for tool in frame.tools:
+        # for tool in frame.tools:
 
-            print "  Tool id: %d, position: %s, direction: %s" % (
-                tool.id, tool.tip_position, tool.direction)
+            # print "  Tool id: %d, position: %s, direction: %s" % (
+            #     tool.id, tool.tip_position, tool.direction)
 
         # Get gestures
         # for gesture in frame.gestures():
@@ -213,8 +276,8 @@ class SampleListener(Leap.Listener):
         #                 gesture.id, self.state_names[gesture.state],
         #                 screentap.position, screentap.direction )
 
-        if not (frame.hands.is_empty and frame.gestures().is_empty):
-            print ""
+        # if not (frame.hands.is_empty and frame.gestures().is_empty):
+        #     print ""
 
 
 
