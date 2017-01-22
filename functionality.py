@@ -2,6 +2,9 @@ import pyautogui as pa
 from google_search import launch_google
 import webbrowser
 import re
+from datetime import datetime
+from time import gmtime, strftime
+from voice import speak
 
 #second delays for input
 pa.PAUSE = 0.25
@@ -12,6 +15,17 @@ def bookmark(name):
 	if name is not None:
 		pa.typewrite(name)
 	pa.press('enter')
+
+def time():
+	minute = datetime.now().strftime('%M')
+	hour = datetime.now().strftime('%H')
+	speak("The current time is " + hour + minute)
+
+def date():
+	speak("Today's date is " + strftime(",%A, %d" + " of " + "%B %Y"))
+
+def inspect():
+	pa.press('f12')
 
 def open_messenger():
     webbrowser.open_new("https://www.messenger.com/")

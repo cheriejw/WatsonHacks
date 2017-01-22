@@ -9,6 +9,15 @@ def command(data):
 	if (("google" in data) or ("search" in data) or ("Google" in data)):
 		f.search(data[6:])
 
+	elif (("inspect" in data)):
+		f.inspect()
+
+	elif (("what time" in data)):
+		f.time()
+
+	elif (("what day" in data) or ("what date" in data)):
+		f.date()
+
 	elif (("click" in data) or ("clack" in data)):
 		f.click()
 
