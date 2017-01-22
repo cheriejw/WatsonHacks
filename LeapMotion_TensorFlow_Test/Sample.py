@@ -9,13 +9,13 @@
 import Leap, sys, thread, time
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
+import pyautogui
+
 import time
 
 import re
 
-file_out = open("testdata.csv", 'a')
-
-
+#file_out = open("newdata.csv", 'a')
 
 
 # TENSORFLOW
@@ -24,6 +24,14 @@ import tensorflow as tf
 import numpy as np
 import random
 import pandas as pd
+
+
+mouseX = 500
+mouseY = 500
+
+mouseSpeed = 20
+
+
 
 
 TRAINING = "leapMotionTrainingSet.csv"
@@ -56,7 +64,7 @@ testSet = tf.contrib.learn.datasets.base.load_csv_without_header(
 featureColumns = [tf.contrib.layers.real_valued_column("", dimension=13)]
 
 classifier = tf.contrib.learn.DNNClassifier(
-                n_classes=4,
+                n_classes=2,
                 feature_columns=featureColumns,
                 hidden_units=[20, 30, 20]
 )
@@ -75,9 +83,10 @@ accuracyScore = classifier.evaluate(
 
 
 
-predictions = classifier.predict(np.array([[1,1,1,1,1,1,1,1,1,1,1,1,1]]))
+# predictions = classifier.predict(np.array([[1,1,1,1,1,1,1,1,1,1,1,1,1]]))
 
-print 'Predictions: ', list(predictions)
+# print 'Predictions: ', list(predictions)
+
 
 
 
@@ -85,6 +94,7 @@ class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
     state_names = ['STATE_INVALID', 'STATE_START', 'STATE_UPDATE', 'STATE_END']
+
 
     def on_init(self, controller):
         print "Initialized"
@@ -113,6 +123,14 @@ class SampleListener(Leap.Listener):
         #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers), len(frame.tools), len(frame.gestures()))
 
         # Get hands
+
+        predictIn = []
+        predictIn.append([])
+        
+        global mouseX
+        global mouseY
+        global mouseSpeed
+
         for hand in frame.hands:
 
             handType = "Left hand" if hand.is_left else "Right hand"
@@ -122,11 +140,13 @@ class SampleListener(Leap.Listener):
 
 
             if(hand.is_left):
-                file_out.write("0,")
-                print "0 "
+                #file_out.write("0,")
+                predictIn[0].append(float(0))
             else:
-                file_out.write("1,")
-                print "1 "
+                #file_out.write("1,")
+                predictIn[0].append(float(1))
+
+
 
             # Get the hand's normal vector and direction
             normal = hand.palm_normal
@@ -141,8 +161,11 @@ class SampleListener(Leap.Listener):
 
 
             # FILE OUT
-            file_out.write("{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw))
-            print "{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw)
+            #file_out.write("{0},{1},{2},".format(direction.pitch, normal.roll, direction.yaw))
+
+            predictIn[0].append(float(direction.pitch))
+            predictIn[0].append(float(normal.roll))
+            predictIn[0].append(float(direction.yaw))
 
 
             # Get arm bone
@@ -160,8 +183,8 @@ class SampleListener(Leap.Listener):
             arm_dir_vals = arm_dir_str.split()
 
             for val in arm_dir_vals:
-                file_out.write(val + ",")
-                print val + " "
+                #file_out.write(val + ",")
+                predictIn[0].append(float(val))
 
 
             # WRIST POSITION
@@ -169,8 +192,8 @@ class SampleListener(Leap.Listener):
             wrist_pos_vals = wrist_pos_str.split()
 
             for val in wrist_pos_vals:
-                file_out.write(val + ",")
-                print val + " "            
+                #file_out.write(val + ",")
+                predictIn[0].append(float(val))          
 
 
             # ELBOW POSITION
@@ -178,8 +201,8 @@ class SampleListener(Leap.Listener):
             elbow_pos_vals = elbow_pos_str.split()
 
             for val in elbow_pos_vals:
-                file_out.write(val + ",")
-                print val + " "
+                #file_out.write(val + ",")
+                predictIn[0].append(float(val))
 
 
 
@@ -224,60 +247,72 @@ class SampleListener(Leap.Listener):
                     #for val in bone_direction_vals:
                         #file_out.write(val + ",")
 
+            # Get gestures
+            for gesture in frame.gestures():
+                if gesture.type == Leap.Gesture.TYPE_CIRCLE:
+                    circle = CircleGesture(gesture)
 
-                    
-            file_out.write(str(3))
+                    # Determine clock direction using the angle between the pointable and the circle normal
+                    if circle.pointable.direction.angle_to(circle.normal) <= Leap.PI/2:
+                        clockwiseness = "clockwise"
+                        pyautogui.scroll(-10)
+                    else:
+                        clockwiseness = "counterclockwise"
+                        pyautogui.scroll(10)
 
-            file_out.write("\n")
-            print "\n"
+                    # Calculate the angle swept since the last frame
+                    swept_angle = 0
+                    if circle.state != Leap.Gesture.STATE_START:
+                        previous_update = CircleGesture(controller.frame(1).gesture(circle.id))
+                        swept_angle =  (circle.progress - previous_update.progress) * 2 * Leap.PI
 
-        # Get tools
-        # for tool in frame.tools:
 
-            # print "  Tool id: %d, position: %s, direction: %s" % (
-            #     tool.id, tool.tip_position, tool.direction)
+                if gesture.type == Leap.Gesture.TYPE_SWIPE:
+                    swipe = SwipeGesture(gesture)
 
-        # Get gestures
-        # for gesture in frame.gestures():
-        #     if gesture.type == Leap.Gesture.TYPE_CIRCLE:
-        #         circle = CircleGesture(gesture)
 
-        #         # Determine clock direction using the angle between the pointable and the circle normal
-        #         if circle.pointable.direction.angle_to(circle.normal) <= Leap.PI/2:
-        #             clockwiseness = "clockwise"
-        #         else:
-        #             clockwiseness = "counterclockwise"
+                if gesture.type == Leap.Gesture.TYPE_KEY_TAP:
+                    keytap = KeyTapGesture(gesture)
 
-        #         # Calculate the angle swept since the last frame
-        #         swept_angle = 0
-        #         if circle.state != Leap.Gesture.STATE_START:
-        #             previous_update = CircleGesture(controller.frame(1).gesture(circle.id))
-        #             swept_angle =  (circle.progress - previous_update.progress) * 2 * Leap.PI
 
-        #         print "  Circle id: %d, %s, progress: %f, radius: %f, angle: %f degrees, %s" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 circle.progress, circle.radius, swept_angle * Leap.RAD_TO_DEG, clockwiseness)
+                if gesture.type == Leap.Gesture.TYPE_SCREEN_TAP:
+                    screentap = ScreenTapGesture(gesture)
 
-        #     if gesture.type == Leap.Gesture.TYPE_SWIPE:
-        #         swipe = SwipeGesture(gesture)
-        #         print "  Swipe id: %d, state: %s, position: %s, direction: %s, speed: %f" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 swipe.position, swipe.direction, swipe.speed)
 
-        #     if gesture.type == Leap.Gesture.TYPE_KEY_TAP:
-        #         keytap = KeyTapGesture(gesture)
-        #         print "  Key Tap id: %d, %s, position: %s, direction: %s" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 keytap.position, keytap.direction )
 
-        #     if gesture.type == Leap.Gesture.TYPE_SCREEN_TAP:
-        #         screentap = ScreenTapGesture(gesture)
-        #         print "  Screen Tap id: %d, %s, position: %s, direction: %s" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 screentap.position, screentap.direction )
+            print predictIn
 
-        # if not (frame.hands.is_empty and frame.gestures().is_empty):
-        #     print ""
+            predictionsList = list(classifier.predict(np.array(predictIn)))
+            print 'Predictions: ', predictionsList[0]
+
+
+            if predictionsList[0] == 0:
+                print 'ctrl -'
+                #pyautogui.hotkey('ctrl', '-')
+            
+            if predictionsList[0] == 1:
+                print 'ctrl +'
+                #pyautogui.hotkey('ctrl', '+')
+
+            # if predictionsList[0] == 2:
+            #     mouseX -= mouseSpeed
+
+            # if predictionsList[0] == 3:
+            #     mouseX += mouseSpeed
+
+
+
+            # print mouseX
+            # print " "
+            # print mouseY
+
+            # pyautogui.moveTo(mouseX, mouseY)
+
+            # file_out.write(str(1))
+
+            # file_out.write("\n")
+
+            # print "\n"
 
 
 
