@@ -3,12 +3,6 @@ import pyautogui as pa
 #second delays for input
 pa.PAUSE = 0.5
 
-def prevWindow():
-	pa.hotkey('alt', 'tab')
-
-def newWindow():
-	pa.hotkey('ctrl', 'n')
-
 #saves in default folder
 def bookmark(name):
 	pa.hotkey('ctrl', 'd')
@@ -16,17 +10,30 @@ def bookmark(name):
 		pa.typewrite(name)
 	pa.press('enter')
 
-def back():
-	pa.hotkey('alt', 'left')
-
-def forward():
-	pa.hotkey('alt', 'right')
-
 def closeTab():
 	pa.hotkey('ctrl', 'w')
 
+def closeWindow():
+	pa.hotkey('alt', 'f4')
+	pa.press('enter')
+
+def newWindow():
+	pa.hotkey('ctrl', 'n')
+
 def newTab():
 	pa.hotkey('ctrl', 't')
+
+def nextTab():
+	pa.hotkey('ctrl', 'tab')
+
+def prevTab():
+	pa.hotkey('ctrl', 'shift', 'tab')
+
+def prevWindow():
+	pa.hotkey('alt', 'tab')
+
+
+
 
 def tab():
 	pa.press('tab')
@@ -34,11 +41,35 @@ def tab():
 def enter():
 	pa.press('enter')
 
-def closeWindow():
-	pa.hotkey('alt', 'f4')
+def zoomin():
+	pa.hotkey('ctrl', '=')
 
-def nextTab():
-	pa.hotkey('ctrl', 'tab')
+def zoomout():
+	pa.hotkey('ctrl', '-')
 
-def prevTab():
-	pa.hotkey('ctrl', 'shift', 'tab')
+def resetZoom():
+	pa.hotkey('ctrl', '0')
+
+def refresh():
+	pa.press('f5')
+
+def fullscreen():
+	pa.press('f11')
+
+#WIP
+# def type():
+
+#def search():
+
+# #saves in Pictures or default directory
+# def screenShot(name):
+# 	img = pa.screenshot('test.png')
+
+
+#leapmotionn
+
+def back():
+	pa.hotkey('alt', 'left')
+
+def forward():
+	pa.hotkey('alt', 'right')

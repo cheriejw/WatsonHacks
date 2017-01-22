@@ -1,4 +1,5 @@
 import socket
+from cmdparse import command
 
 sock = socket.socket()  
 host = 'localhost'   
@@ -12,4 +13,5 @@ while True:
     while True:
         data = connection.recv(1024)
         print data
+	command(data)
     connection.close()
