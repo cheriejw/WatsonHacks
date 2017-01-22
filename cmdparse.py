@@ -19,13 +19,13 @@ def command(data):
 	elif (("what day" in data) or ("what date" in data) or ("today's date" in data) or ("today" in data)):
 		f.date()
 
-	elif (("in" in data))
+	elif (("oom in" in data)):
 		f.zoomin()
 
-	elif (("out" in data))
+	elif (("oom out" in data)):
 		f.zoomout()
 
-	elif (("reset" in data))
+	elif (("set zoom" in data) or ("reset" in data):
 		f.resetZoom()
 
 	elif (("click" in data) or ("clack" in data)):
