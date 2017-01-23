@@ -21,6 +21,9 @@ def time():
 	hour = datetime.now().strftime('%H')
 	speak("The current time is " + hour + minute)
 
+def repeat(words):
+    speak(words)
+
 def date():
 	speak("Today's date is " + strftime(",%A, %d" + " of " + "%B %Y"))
 

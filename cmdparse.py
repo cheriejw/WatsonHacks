@@ -6,6 +6,9 @@ def command(data):
 
 	if ("type" == data[:4]):
 		f.type(data[4:])
+
+	elif (("repeat" == data[:6])):
+		f.repeat(data[6:])	
 	
 	elif (("google" in data) or ("search" in data) or ("Google" in data)):
 		f.search(data[6:])
