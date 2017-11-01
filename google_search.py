@@ -1,6 +1,7 @@
 import webbrowser
 import re
 
+# Controls
 def launch_google(query):
 
     address = "https://www.google.com/#q="
